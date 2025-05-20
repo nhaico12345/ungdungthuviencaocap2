@@ -162,7 +162,7 @@
             this.button_quetmamuonsach.Font = new System.Drawing.Font("Tahoma", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button_quetmamuonsach.Image = global::ungdungthuviencaocap.Properties.Resources.qr;
             this.button_quetmamuonsach.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button_quetmamuonsach.Location = new System.Drawing.Point(473, 353);
+            this.button_quetmamuonsach.Location = new System.Drawing.Point(476, 353);
             this.button_quetmamuonsach.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button_quetmamuonsach.Name = "button_quetmamuonsach";
             this.button_quetmamuonsach.Size = new System.Drawing.Size(154, 38);
