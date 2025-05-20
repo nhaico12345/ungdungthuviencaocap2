@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35825.156
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ungdungthuviencaocap", "ungdungthuviencaocap\ungdungthuviencaocap.csproj", "{ED28D26C-8F66-4420-979A-F99F1EB6B764}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ED28D26C-8F66-4420-979A-F99F1EB6B764}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{ED28D26C-8F66-4420-979A-F99F1EB6B764}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{ED28D26C-8F66-4420-979A-F99F1EB6B764}.Debug|x64.ActiveCfg = Debug|x64
+		{ED28D26C-8F66-4420-979A-F99F1EB6B764}.Debug|x64.Build.0 = Debug|x64
+		{ED28D26C-8F66-4420-979A-F99F1EB6B764}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED28D26C-8F66-4420-979A-F99F1EB6B764}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED28D26C-8F66-4420-979A-F99F1EB6B764}.Release|x64.ActiveCfg = Release|x64
+		{ED28D26C-8F66-4420-979A-F99F1EB6B764}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {184EF2C4-84D3-481B-BC6E-466B7B2A4F6B}
+	EndGlobalSection
+EndGlobal

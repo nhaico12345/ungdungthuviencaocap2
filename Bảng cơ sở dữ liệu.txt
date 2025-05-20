@@ -1,0 +1,103 @@
+CREATE TABLE TheLoai (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    MaTheLoai TEXT UNIQUE NOT NULL,
+    TenTheLoai TEXT,
+    MoTa TEXT,
+    TrangThai TEXT
+)
+
+CREATE TABLE "ThongKeMuonTra" (
+    "ID" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "MaSinhVien" TEXT NOT NULL,
+    "HoVaTen" TEXT NOT NULL,
+    "SoLanMuon" INTEGER DEFAULT 0,
+    "SoLanTra" INTEGER DEFAULT 0,
+    "TongSachMuon" INTEGER DEFAULT 0,
+    "TongSachTra" INTEGER DEFAULT 0
+, NgayMuon TEXT, NgayTra TEXT)
+
+CREATE TABLE "lichhenmuonsach" (
+	"ID"	INTEGER,
+	"MaSV"	TEXT NOT NULL,
+	"HoVaTen"	TEXT NOT NULL,
+	"TenSach"	TEXT NOT NULL,
+	"LichHen"	TEXT NOT NULL,
+	"GioHen"	TEXT NOT NULL,
+	"LoaiHen"	TEXT NOT NULL,
+	PRIMARY KEY("ID" AUTOINCREMENT)
+)
+
+CREATE TABLE "muontrasach" (
+	"ID"	INTEGER,
+	"TenSach"	TEXT NOT NULL,
+	"MaSinhVien"	INTEGER NOT NULL,
+	"HoVaTen"	TEXT NOT NULL,
+	"LoaiPhieu"	TEXT NOT NULL,
+	"NgayMuon"	TEXT NOT NULL,
+	"NgayTra"	TEXT NOT NULL,
+	"SoLuong"	INTEGER NOT NULL,
+	"IsActive"	INTEGER DEFAULT 1,
+	"MaSach"	INTEGER NOT NULL,
+	PRIMARY KEY("ID")
+)
+
+CREATE TABLE "quanlysach" (
+	"ID"	INTEGER,
+	"TenSach"	TEXT NOT NULL,
+	"TheLoai"	TEXT NOT NULL,
+	"TacGia"	TEXT NOT NULL,
+	"SoLuong"	INTEGER NOT NULL,
+	"NhaXuatBan"	TEXT NOT NULL,
+	"NamXuatBan"	INTEGER NOT NULL,
+	"MaSach"	TEXT UNIQUE, anh TEXT, pdf TEXT, tomtatnoidung TEXT,
+	PRIMARY KEY("ID")
+)
+
+CREATE TABLE "tacgia" (
+    "ID" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "MaTacGia" TEXT UNIQUE NOT NULL, -- Mã tác giả, 8 ký tự chữ và số, duy nhất
+    "HoTen" TEXT NOT NULL,           -- Họ tên tác giả
+    "HocHam" TEXT,                   -- Học hàm (VD: Giáo sư, Phó Giáo sư)
+    "HocVi" TEXT,                    -- Học vị (VD: Tiến sĩ, Thạc sĩ)
+    "DiaChi" TEXT,                   -- Địa chỉ
+    "Email" TEXT,                    -- Email
+    "NgaySinh" TEXT,                 -- Ngày sinh (định dạng text YYYY-MM-DD hoặc DD/MM/YYYY)
+    "QuocTich" TEXT,                 -- Quốc tịch
+    "Anh" TEXT,                      -- Đường dẫn đến file ảnh
+    "TieuSu" TEXT,                   -- Tiểu sử tóm tắt
+    "TrangThai" TEXT                 -- Trạng thái (dạng text như yêu cầu)
+)
+
+CREATE TABLE "taikhoan" (
+	"MaSinhVien"	TEXT,
+	"TenTaiKhoan"	TEXT NOT NULL UNIQUE,
+	"MatKhau"	TEXT NOT NULL,
+	"Email"	TEXT NOT NULL,
+	"HoVaTen"	TEXT NOT NULL,
+	"Avatar"	TEXT DEFAULT 'default.png',
+	"Quyen"	TEXT DEFAULT 'user',
+	"DiaChi"	TEXT NOT NULL,
+	"SoDienThoai"	TEXT NOT NULL,
+	"NgaySinh"	TEXT NOT NULL,
+	"GioiTinh"	TEXT NOT NULL, TrangThai TEXT DEFAULT 'active',
+	PRIMARY KEY("MaSinhVien")
+)
+
+CREATE TABLE "vitrisach" (
+	"TenSach"	TEXT NOT NULL,
+	"ViTri"	TEXT NOT NULL,
+	PRIMARY KEY("TenSach")
+)
+
+CREATE TABLE "NhaXuatBan" (
+	"ID"	INTEGER,
+	"MaNhaXuatBan"	TEXT NOT NULL UNIQUE,
+	"TenNhaXuatBan"	TEXT NOT NULL UNIQUE,
+	"DiaChi"	TEXT,
+	"SoHieuXuatBan"	TEXT,
+	"Email"	TEXT,
+	"Website"	TEXT,
+	"NgayThanhLap"	TEXT,
+	"TrangThai"	TEXT,
+	PRIMARY KEY("ID" AUTOINCREMENT)
+)
