@@ -1,1 +1,1 @@
-# ungdungthuviencaocap
+# ỨNG DỤNG THƯ VIỆN ĐƯỢC XÂY DỰNG BẰNG C# VÀ SỬ DỤNG SQLITE CHO CÁC TÁC VỤ BÌNH THƯỜNG VÀ NHỎ KHÔNG THỂ XỬ LÝ CÁC TÁC VỤ LỚN CÓ THỂ DẪN TỚI QUÁ TẢI HỆ THỐNG
