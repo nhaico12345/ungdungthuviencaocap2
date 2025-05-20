@@ -162,7 +162,7 @@
             this.button_quetmamuonsach.Font = new System.Drawing.Font("Tahoma", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button_quetmamuonsach.Image = global::ungdungthuviencaocap.Properties.Resources.qr;
             this.button_quetmamuonsach.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button_quetmamuonsach.Location = new System.Drawing.Point(473, 353);
+            this.button_quetmamuonsach.Location = new System.Drawing.Point(476, 353);
             this.button_quetmamuonsach.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button_quetmamuonsach.Name = "button_quetmamuonsach";
             this.button_quetmamuonsach.Size = new System.Drawing.Size(154, 38);
@@ -177,8 +177,10 @@
             this.textBox_soluong.Location = new System.Drawing.Point(262, 292);
             this.textBox_soluong.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.textBox_soluong.Name = "textBox_soluong";
+            this.textBox_soluong.ReadOnly = true;
             this.textBox_soluong.Size = new System.Drawing.Size(263, 24);
             this.textBox_soluong.TabIndex = 18;
+            this.textBox_soluong.Text = "1";
             this.textBox_soluong.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBox_soluong_KeyDown);
             // 
             // label8
@@ -236,7 +238,7 @@
             this.button_phieumuon.Font = new System.Drawing.Font("Tahoma", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button_phieumuon.Image = global::ungdungthuviencaocap.Properties.Resources.books_lightbulb;
             this.button_phieumuon.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button_phieumuon.Location = new System.Drawing.Point(239, 331);
+            this.button_phieumuon.Location = new System.Drawing.Point(262, 336);
             this.button_phieumuon.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button_phieumuon.Name = "button_phieumuon";
             this.button_phieumuon.Size = new System.Drawing.Size(183, 47);
@@ -281,6 +283,7 @@
             // comboBox_tensach
             // 
             this.comboBox_tensach.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.comboBox_tensach.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox_tensach.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.comboBox_tensach.FormattingEnabled = true;
             this.comboBox_tensach.Location = new System.Drawing.Point(262, 18);
@@ -335,9 +338,9 @@
             this.label2.Font = new System.Drawing.Font("Tahoma", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(52, 132);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(128, 23);
+            this.label2.Size = new System.Drawing.Size(140, 23);
             this.label2.TabIndex = 2;
-            this.label2.Text = "Mã sinh viên: ";
+            this.label2.Text = "Mã định danh: ";
             // 
             // label1
             // 
