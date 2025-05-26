@@ -747,37 +747,7 @@ namespace ungdungthuviencaocap
 
 		public void SetBookCode(string code)
 		{
-			textBox_masach.Text = code;
-			if (!string.IsNullOrWhiteSpace(code))
-			{
-				using (SQLiteConnection con = Connection.GetSQLiteConnection())
-				{
-					try
-					{
-						con.Open();
-						SQLiteCommand command = new SQLiteCommand("SELECT TenSach FROM quanlysach WHERE MaSach = @MaSach", con);
-						command.Parameters.AddWithValue("@MaSach", code);
-						object tenSachResult = command.ExecuteScalar();
-						if (tenSachResult != null)
-						{
-							comboBox_tensach.Text = tenSachResult.ToString();
-						}
-						else
-						{
-							comboBox_tensach.Text = "";
-						}
-					}
-					catch (Exception ex)
-					{
-						MessageBox.Show("Lỗi khi tìm tên sách từ mã sách quét: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-						comboBox_tensach.Text = "";
-					}
-				}
-			}
-			else
-			{
-				comboBox_tensach.Text = "";
-			}
+			textBox_masinhvien.Text = code;
 		}
 
 		public void XuLyMaSachQuet(string maSachQuet, string maSinhVienQuet, string hoVaTenQuet)
@@ -887,6 +857,12 @@ namespace ungdungthuviencaocap
 				}
 				textBox_soluong.Text = row.Cells["SoLuong"].Value?.ToString() ?? "";
 			}
+		}
+
+		public void RefreshDataGridView()
+		{
+			LoadDataGridView(); // Gọi lại phương thức tải dữ liệu của bạn
+			ClearInputFields(); // Có thể bạn cũng muốn xóa các trường nhập liệu
 		}
 	}
 }
