@@ -747,7 +747,37 @@ namespace ungdungthuviencaocap
 
 		public void SetBookCode(string code)
 		{
-			textBox_masinhvien.Text = code;
+			textBox_masinhvien.Text = code; // Gán mã QR vào textBox_masinhvien
+			if (!string.IsNullOrWhiteSpace(code))
+			{
+				using (SQLiteConnection con = Connection.GetSQLiteConnection())
+				{
+					try
+					{
+						con.Open();
+						SQLiteCommand command = new SQLiteCommand("SELECT HoVaTen FROM taikhoan WHERE MaSinhVien = @MaSinhVien LIMIT 1", con);
+						command.Parameters.AddWithValue("@MaSinhVien", code);
+						object tenSachResult = command.ExecuteScalar();
+						if (tenSachResult != null)
+						{
+							textBox_hovaten.Text = tenSachResult.ToString(); // Cập nhật tên sách tương ứng
+						}
+						else
+						{
+							textBox_hovaten.Text = "";
+						}
+					}
+					catch (Exception ex)
+					{
+						MessageBox.Show("Lỗi khi tìm tên sách từ mã sách quét: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+						textBox_hovaten.Text = "";
+					}
+				}
+			}
+			else
+			{
+				textBox_hovaten.Text = "";
+			}
 		}
 
 		public void XuLyMaSachQuet(string maSachQuet, string maSinhVienQuet, string hoVaTenQuet)
