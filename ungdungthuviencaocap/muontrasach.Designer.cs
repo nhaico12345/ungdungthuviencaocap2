@@ -165,7 +165,7 @@
             this.button_quetmamuonsach.Location = new System.Drawing.Point(491, 123);
             this.button_quetmamuonsach.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.button_quetmamuonsach.Name = "button_quetmamuonsach";
-            this.button_quetmamuonsach.Size = new System.Drawing.Size(136, 43);
+            this.button_quetmamuonsach.Size = new System.Drawing.Size(121, 38);
             this.button_quetmamuonsach.TabIndex = 28;
             this.button_quetmamuonsach.Text = "        Quét mã";
             this.button_quetmamuonsach.UseVisualStyleBackColor = false;
