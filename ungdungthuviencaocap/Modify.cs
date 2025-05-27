@@ -1,4 +1,5 @@
-﻿using ExcelDataReader;
+﻿using ClosedXML.Excel;
+using ExcelDataReader;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -6,10 +7,7 @@ using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using ClosedXML.Excel;
 using System.Windows.Forms;
-using QRCoder;
 
 namespace ungdungthuviencaocap
 {
@@ -18,7 +16,13 @@ namespace ungdungthuviencaocap
 		SQLiteDataAdapter dataAdapter;
 		SQLiteCommand sqlcommand;
 		private static Random randomGenerator = new Random();
-
+		private const string HeaderMaSach = "Mã sách";
+		private const string HeaderTenSach = "Tên sách";
+		private const string HeaderTheLoai = "Thể loại"; // Expecting category name
+		private const string HeaderTacGia = "Tác giả";   // Expecting author name
+		private const string HeaderSoLuong = "Số lượng";
+		private const string HeaderNhaXuatBan = "Nhà xuất bản"; // Expecting publisher name
+		private const string HeaderNamXuatBan = "Năm xuất bản";
 		public Modify()
 		{
 		}
@@ -1062,43 +1066,154 @@ namespace ungdungthuviencaocap
 		public List<sachquanly> ImportFromExcel(string filePath)
 		{
 			var books = new List<sachquanly>();
+			var errorLog = new StringBuilder();
+			errorLog.AppendLine($"Starting import from Excel file: {filePath} at {DateTime.Now}");
 
 			System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
-			using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
+
+			try
 			{
-				using (var reader = ExcelReaderFactory.CreateReader(stream))
+				using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) 
 				{
-					var result = reader.AsDataSet();
-					if (result.Tables.Count > 0)
+					using (var reader = ExcelReaderFactory.CreateReader(stream))
 					{
-						var table = result.Tables[0];
-						for (int i = 1; i < table.Rows.Count; i++)
+						var result = reader.AsDataSet(new ExcelDataSetConfiguration()
 						{
-							var row = table.Rows[i];
+							ConfigureDataTable = (_) => new ExcelDataTableConfiguration()
+							{
+								UseHeaderRow = true 
+							}
+						});
+
+						if (result.Tables.Count == 0 || result.Tables[0].Rows.Count == 0)
+						{
+							errorLog.AppendLine("Excel file is empty or contains no data rows.");
+							MessageBox.Show("File Excel không có dữ liệu hoặc không có trang tính nào.", "Lỗi Đọc File", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+							Console.WriteLine(errorLog.ToString());
+							return books; 
+						}
+
+						DataTable table = result.Tables[0];
+
+						var columnMap = new Dictionary<string, int>();
+						for (int i = 0; i < table.Columns.Count; i++)
+						{
+							string colName = table.Columns[i].ColumnName?.Trim();
+							if (!string.IsNullOrEmpty(colName) && !columnMap.ContainsKey(colName))
+							{
+								columnMap[colName] = i;
+							}
+						}
+
+						List<string> requiredHeaders = new List<string> { HeaderTenSach, HeaderSoLuong, HeaderNamXuatBan };
+						foreach (string reqHeader in requiredHeaders)
+						{
+							if (!columnMap.ContainsKey(reqHeader))
+							{
+								MessageBox.Show($"Cột '{reqHeader}' bắt buộc không được tìm thấy trong file Excel. Vui lòng kiểm tra lại tiêu đề cột.", "Thiếu Cột Quan Trọng", MessageBoxButtons.OK, MessageBoxIcon.Error);
+								errorLog.AppendLine($"Critical error: Required header '{reqHeader}' not found.");
+								Console.WriteLine(errorLog.ToString());
+								return books; 
+							}
+						}
+
+
+						for (int i = 0; i < table.Rows.Count; i++) 
+						{
+							DataRow row = table.Rows[i];
+							sachquanly book = new sachquanly(); 
+
 							try
 							{
-								var book = new sachquanly
+								Func<string, string> getStringValue = (headerName) =>
 								{
-									Masach = row[0].ToString(),
-									Tensach = row[1].ToString(),
-									Theloai = row[2].ToString(),
-									Tacgia = row[3].ToString(),
-									Soluong = Convert.ToInt32(row[4]),
-									Nhaxuatban = row[5].ToString(),
-									Namxuatban = Convert.ToInt32(row[6])
+									if (columnMap.TryGetValue(headerName, out int colIndex) && colIndex < row.ItemArray.Length && row[colIndex] != null && row[colIndex] != DBNull.Value)
+									{
+										return row[colIndex].ToString().Trim();
+									}
+									return null; 
 								};
+
+								Func<string, int?> getIntValue = (headerName) =>
+								{
+									string valStr = getStringValue(headerName);
+									if (int.TryParse(valStr, out int intVal))
+									{
+										return intVal;
+									}
+									if (!string.IsNullOrEmpty(valStr)) 
+									{
+										errorLog.AppendLine($" - Row {i + 2}: Could not parse integer for column '{headerName}'. Value: '{valStr}'.");
+									}
+									return null;
+								};
+
+								book.Masach = getStringValue(HeaderMaSach); 
+								book.Tensach = getStringValue(HeaderTenSach);
+								book.Theloai = getStringValue(HeaderTheLoai);
+								book.Tacgia = getStringValue(HeaderTacGia);
+								book.Soluong = getIntValue(HeaderSoLuong) ?? 0; 
+								book.Nhaxuatban = getStringValue(HeaderNhaXuatBan);
+								book.Namxuatban = getIntValue(HeaderNamXuatBan) ?? 0; 
+
+								if (string.IsNullOrWhiteSpace(book.Tensach))
+								{
+									errorLog.AppendLine($" - Row {i + 2}: Bỏ qua do Tên sách trống.");
+									continue; 
+								}
+
 								books.Add(book);
 							}
-							catch (Exception ex)
+							catch (Exception exRow)
 							{
-								Console.WriteLine($"Lỗi khi đọc dòng {i + 1} từ Excel: {ex.Message}. Dữ liệu: {string.Join(", ", row.ItemArray)}");
+								errorLog.AppendLine($" - Row {i + 2}: Lỗi xử lý dữ liệu. Chi tiết: {exRow.Message}. Dữ liệu thô: [{string.Join(" | ", row.ItemArray.Select(c => c?.ToString() ?? "NULL"))}]");
 							}
 						}
 					}
 				}
 			}
+			catch (IOException ioEx)
+			{
+				errorLog.AppendLine($"IO Error accessing Excel file: {ioEx.Message}. Ensure the file is not locked by another process.");
+				MessageBox.Show($"Lỗi truy cập file Excel: {ioEx.Message}\nĐảm bảo file không được mở bởi chương trình khác.", "Lỗi File", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				Console.WriteLine(errorLog.ToString());
+				return new List<sachquanly>(); 
+			}
+			catch (Exception exFile)
+			{
+				errorLog.AppendLine($"General error processing Excel file: {exFile.Message}");
+				MessageBox.Show($"Lỗi không xác định khi đọc file Excel: {exFile.Message}", "Lỗi Đọc File", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				Console.WriteLine(errorLog.ToString());
+				return new List<sachquanly>();
+			}
+
+			if (errorLog.Length > $"Starting import from Excel file: {filePath} at {DateTime.Now}".Length + 50) 
+			{
+				try
+				{
+					string logDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ImportLogs");
+					Directory.CreateDirectory(logDir); 
+					string logFilePath = Path.Combine(logDir, $"ImportErrorLog_{Path.GetFileNameWithoutExtension(filePath)}_{DateTime.Now:yyyyMMddHHmmss}.txt");
+					File.WriteAllText(logFilePath, errorLog.ToString());
+					Console.WriteLine($"Import error log saved to: {logFilePath}");
+					if (books.Count < 10 && books.Count > 0) 
+					{
+						MessageBox.Show($"Đã xảy ra một số lỗi trong quá trình nhập liệu. Chi tiết đã được ghi vào file log:\n{logFilePath}", "Cảnh Báo Nhập Liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+					}
+				}
+				catch (Exception exLog)
+				{
+					Console.WriteLine($"Failed to write import error log: {exLog.Message}");
+				}
+			}
+			else
+			{
+				Console.WriteLine($"Import from {filePath} completed with no major issues logged beyond initial message.");
+			}
+
 			return books;
 		}
+
 		public DataTable searchBooks(string keyword, SQLiteConnection sqlConnection = null)
 		{
 			DataTable dt = new DataTable();

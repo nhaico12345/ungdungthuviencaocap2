@@ -1,18 +1,12 @@
-﻿using System;
+﻿using QRCoder;
+using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Text;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using DevExpress.XtraEditors;
-using System.Data.SQLite;
-using ExcelDataReader;
-using QRCoder;
-using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
 
 namespace ungdungthuviencaocap
 {
@@ -334,7 +328,7 @@ namespace ungdungthuviencaocap
 			{
 				using (OpenFileDialog openFileDialog = new OpenFileDialog())
 				{
-					openFileDialog.Filter = "Excel Files|*.xls;*.xlsx";
+					openFileDialog.Filter = "Excel Files|*.xls;*.xlsx;*.xlsb;*.xlsm"; 
 					openFileDialog.Title = "Chọn file Excel chứa dữ liệu sách";
 					openFileDialog.CheckFileExists = true;
 					openFileDialog.CheckPathExists = true;
@@ -342,20 +336,30 @@ namespace ungdungthuviencaocap
 					if (openFileDialog.ShowDialog(this) == DialogResult.OK)
 					{
 						string filePath = openFileDialog.FileName;
-						this.Cursor = Cursors.WaitCursor;
+						this.Cursor = Cursors.WaitCursor; 
 
 						try
 						{
 							List<sachquanly> booksFromExcel = modify.ImportFromExcel(filePath);
 
-							if (booksFromExcel == null) { this.Cursor = Cursors.Default; return; }
-							if (booksFromExcel.Count == 0) { MessageBox.Show("Không đọc được dữ liệu hợp lệ nào từ file Excel hoặc file trống.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information); this.Cursor = Cursors.Default; return; }
+							if (booksFromExcel == null) 
+							{
+								this.Cursor = Cursors.Default;
+								MessageBox.Show("Không thể đọc dữ liệu từ file Excel do lỗi không xác định.", "Lỗi Nhập Liệu", MessageBoxButtons.OK, MessageBoxIcon.Error);
+								return;
+							}
+
+							if (booksFromExcel.Count == 0)
+							{
+								this.Cursor = Cursors.Default;
+								return;
+							}
 
 							int addedCount = 0;
 							int skippedCount = 0;
 							int errorCount = 0;
 							StringBuilder processDetails = new StringBuilder();
-							processDetails.AppendLine("--- Chi tiết xử lý nhập liệu ---");
+							processDetails.AppendLine($"--- Chi tiết xử lý nhập liệu từ file: {Path.GetFileName(filePath)} ---");
 
 							foreach (var book in booksFromExcel)
 							{
@@ -363,81 +367,92 @@ namespace ungdungthuviencaocap
 								{
 									modify.AddTheLoaiIfNotExists(book.Theloai);
 								}
-
-								if (!string.IsNullOrWhiteSpace(book.Nhaxuatban))
-								{
-									modify.AddNhaXuatBanIfNotExists(book.Nhaxuatban);
-								}
 								if (!string.IsNullOrWhiteSpace(book.Tacgia))
 								{
 									modify.AddTacGiaIfNotExists(book.Tacgia);
 								}
+								if (!string.IsNullOrWhiteSpace(book.Nhaxuatban))
+								{
+									modify.AddNhaXuatBanIfNotExists(book.Nhaxuatban);
+								}
 
-
-								if (modify.CheckDuplicateBook(book))
+								if (modify.CheckDuplicateBook(book)) 
 								{
 									skippedCount++;
-									processDetails.AppendLine($"- Bỏ qua (Trùng): {book.Tensach}");
+									processDetails.AppendLine($"- Bỏ qua (Trùng): {book.Tensach ?? "Sách không tên"} (Mã: {book.Masach ?? "N/A"})");
 								}
 								else
 								{
-									if (modify.Insert(book))
+									if (modify.Insert(book)) 
 									{
 										addedCount++;
-										processDetails.AppendLine($"- Đã thêm: {book.Tensach} (Mã: {book.Masach})");
+										processDetails.AppendLine($"- Đã thêm: {book.Tensach ?? "Sách không tên"} (Mã: {book.Masach ?? "N/A"})");
 									}
 									else
 									{
 										errorCount++;
-										processDetails.AppendLine($"- Lỗi thêm: {book.Tensach}");
+										processDetails.AppendLine($"- Lỗi thêm: {book.Tensach ?? "Sách không tên"} (Mã: {book.Masach ?? "N/A"})");
 									}
 								}
 							}
-							LoadDataGridView();
-							LoadComboBoxData();
 
-							string message = $"Nhập dữ liệu từ file Excel hoàn tất.\n\n" +
+							LoadDataGridView(); 
+							LoadComboBoxData(); 
+
+							string summaryMessage = $"Nhập dữ liệu từ file Excel hoàn tất.\n\n" +
 											 $"- Số sách mới được thêm: {addedCount}\n" +
 											 $"- Số sách bị bỏ qua (đã tồn tại): {skippedCount}\n" +
-											 $"- Số sách gặp lỗi khi thêm: {errorCount}";
+											 $"- Số sách gặp lỗi khi thêm vào CSDL: {errorCount}";
 
-							if (booksFromExcel.Count > 0)
+							if (booksFromExcel.Count > 0) 
 							{
-								const int detailThreshold = 50;
-								if (booksFromExcel.Count < detailThreshold)
+								const int detailThreshold = 30; 
+								string logFileName = $"ImportProcessLog_{Path.GetFileNameWithoutExtension(filePath)}_{DateTime.Now:yyyyMMddHHmmss}.txt";
+								string logDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ImportLogs");
+
+								try
 								{
-									message += "\n\n" + processDetails.ToString();
-								}
-								else
-								{
-									try
+									Directory.CreateDirectory(logDir); 
+									string logFilePath = Path.Combine(logDir, logFileName);
+									File.AppendAllText(logFilePath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Import từ '{filePath}'\n{processDetails.ToString()}\n\n");
+
+									if (booksFromExcel.Count < detailThreshold && (skippedCount > 0 || errorCount > 0))
 									{
-										string logFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "import_log.txt");
-										File.AppendAllText(logFilePath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Import từ '{filePath}'\n{processDetails.ToString()}\n\n");
-										message += $"\n\n(Chi tiết xử lý đã được ghi vào file {logFilePath})";
+										summaryMessage += $"\n\nChi tiết:\n{processDetails.ToString()}";
 									}
-									catch (Exception logEx) { Console.WriteLine("Không thể ghi file log nhập liệu: " + logEx.Message); }
+									else if (skippedCount > 0 || errorCount > 0 || addedCount > 0)
+									{
+										summaryMessage += $"\n\n(Chi tiết xử lý đã được ghi vào file log tại thư mục ImportLogs)";
+									}
+								}
+								catch (Exception logEx)
+								{
+									Console.WriteLine("Không thể ghi file log chi tiết nhập liệu: " + logEx.Message);
+									summaryMessage += "\n\n(Không thể ghi file log chi tiết do lỗi.)";
 								}
 							}
-							MessageBoxIcon icon = (errorCount > 0 || skippedCount > 0) ? MessageBoxIcon.Warning : MessageBoxIcon.Information;
-							MessageBox.Show(message, "Kết quả Nhập liệu", MessageBoxButtons.OK, icon);
+
+							MessageBoxIcon icon = (errorCount > 0 || skippedCount > booksFromExcel.Count / 2) ? MessageBoxIcon.Warning : MessageBoxIcon.Information;
+							MessageBox.Show(summaryMessage, "Kết quả Nhập liệu", MessageBoxButtons.OK, icon);
 						}
-						catch (Exception ex)
+						catch (Exception exProcess) // Catch errors during the processing of imported data
 						{
-							MessageBox.Show("Lỗi trong quá trình xử lý dữ liệu từ Excel: " + ex.Message, "Lỗi Xử Lý", MessageBoxButtons.OK, MessageBoxIcon.Error);
-							Console.WriteLine($"Stack Trace lỗi xử lý Excel: {ex.StackTrace}");
+							MessageBox.Show("Lỗi trong quá trình xử lý dữ liệu từ Excel sau khi đọc file: " + exProcess.Message, "Lỗi Xử Lý Dữ Liệu", MessageBoxButtons.OK, MessageBoxIcon.Error);
+							Console.WriteLine($"Stack Trace lỗi xử lý dữ liệu Excel: {exProcess.StackTrace}");
 						}
 						finally
 						{
-							this.Cursor = Cursors.Default;
+							this.Cursor = Cursors.Default; // Reset cursor
 						}
 					}
 				}
 			}
-			catch (Exception ex)
+
+			catch (Exception exDialog) // Catch errors related to OpenFileDialog itself
 			{
-				MessageBox.Show($"Lỗi khi mở hộp thoại chọn file: {ex.Message}", "Lỗi Hệ Thống", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				Console.WriteLine($"Stack Trace lỗi mở file dialog: {ex.StackTrace}");
+				MessageBox.Show($"Lỗi khi mở hộp thoại chọn file: {exDialog.Message}", "Lỗi Hệ Thống", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				Console.WriteLine($"Stack Trace lỗi mở file dialog: {exDialog.StackTrace}");
+				if (this.Cursor == Cursors.WaitCursor) this.Cursor = Cursors.Default; // Ensure cursor is reset
 			}
 		}
 
@@ -656,10 +671,6 @@ namespace ungdungthuviencaocap
 				MessageBox.Show($"Lỗi không mong muốn khi xuất mã QR: {ex.Message}", "Lỗi Hệ Thống", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				Console.WriteLine($"Stack Trace lỗi xuất QR: {ex.StackTrace}");
 			}
-		}
-
-		private void quanlysach_FormClosing(object sender, FormClosingEventArgs e)
-		{
 		}
 	}
 }

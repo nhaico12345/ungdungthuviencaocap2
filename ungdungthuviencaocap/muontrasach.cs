@@ -891,8 +891,8 @@ namespace ungdungthuviencaocap
 
 		public void RefreshDataGridView()
 		{
-			LoadDataGridView(); // Gọi lại phương thức tải dữ liệu của bạn
-			ClearInputFields(); // Có thể bạn cũng muốn xóa các trường nhập liệu
+			LoadDataGridView(); // Gọi lại phương thức tải dữ liệu 
+			ClearInputFields(); // Xóa các trường nhập liệu
 		}
 	}
 }
