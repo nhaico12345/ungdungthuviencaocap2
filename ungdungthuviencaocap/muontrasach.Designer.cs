@@ -250,6 +250,7 @@
             // comboBox_LoaiPhieu
             // 
             this.comboBox_LoaiPhieu.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.comboBox_LoaiPhieu.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.comboBox_LoaiPhieu.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.comboBox_LoaiPhieu.FormattingEnabled = true;
             this.comboBox_LoaiPhieu.Items.AddRange(new object[] {
@@ -260,7 +261,6 @@
             this.comboBox_LoaiPhieu.Name = "comboBox_LoaiPhieu";
             this.comboBox_LoaiPhieu.Size = new System.Drawing.Size(263, 27);
             this.comboBox_LoaiPhieu.TabIndex = 10;
-            this.comboBox_LoaiPhieu.Text = "Dài hạn";
             // 
             // textBox_hovaten
             // 
